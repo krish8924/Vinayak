@@ -92,7 +92,23 @@ function closeQR(){qrModal.classList.remove('show')}
 function submitCollection(){
  const x={date:new Date().toLocaleDateString('en-IN'),name:cName.value,phone:cPhone.value,flat:cFlat.value,building:cBuilding.value,wing:cWing.value,worker:cWorker.value,amount:Number(cAmount.value||0),mode:cMode.value};
  if(!x.name||!x.phone||!x.amount){alert('Name, Phone आणि Amount भरा.');return}
- collections.unshift(x);localStorage.setItem('collections',JSON.stringify(collections));lastPhone=x.phone;
+ 
+ collections.unshift(x);
+ fetch(GOOGLE_SCRIPT_URL, {
+  method: "POST",
+  body: JSON.stringify({
+    type: "collection",
+    name: x.name,
+    phone: x.phone,
+    flat: x.flat,
+    building: x.building,
+    wing: x.wing,
+    worker: x.worker,
+    amount: x.amount,
+    mode: x.mode
+  })
+});
+ localStorage.setItem('collections',JSON.stringify(collections));lastPhone=x.phone;
  lastMessage=`🙏 गणपती बाप्पा मोरया!%0A%0Aवर्गणी ₹${x.amount} प्राप्त झाली आहे.%0AName: ${x.name}%0AFlat No: ${x.flat}%0ADate: ${x.date}%0A%0Aधन्यवाद! 🙏`;
  shareInfo.innerHTML=`<b>${x.name}</b><br>Flat: ${x.flat}<br>Amount: ${money(x.amount)}<br>Phone: ${x.phone}`;
 shareModal.classList.add('show');['cName','cPhone','cFlat','cBuilding','cWorker','cAmount'].forEach(id=>document.getElementById(id).value='');render()
