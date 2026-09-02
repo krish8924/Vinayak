@@ -107,6 +107,28 @@ expenses.unshift(x);localStorage.setItem('expenses',JSON.stringify(expenses));al
 function shareWhatsApp(){window.open('https://wa.me/'+lastPhone.replace(/\D/g,'')+'?text='+lastMessage,'_blank')}
 function copyPhone(){navigator.clipboard.writeText(lastPhone);alert('Phone number copied!')}
 function closeShare(){shareModal.classList.remove('show')}
+ async function loadDataFromSheet() {
+  try {
+    const response = await fetch(GOOGLE_SCRIPT_URL);
+    const data = await response.json();
+
+    if (data.success) {
+      collections = data.collections || [];
+      expenses = data.expenses || [];
+
+      localStorage.setItem('collections', JSON.stringify(collections));
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+
+      render();
+      console.log("Google Sheet data loaded successfully");
+    } else {
+      console.error("Google Sheet error:", data.error);
+    }
+
+  } catch (error) {
+    console.error("Failed to load Google Sheet data:", error);
+  }
+}
 function render(){
 let tc=collections.reduce((s,x)=>s+x.amount,0),te=expenses.reduce((s,x)=>s+x.amount,0);
 totalCollection.textContent=money(tc);totalExpense.textContent=money(te);peopleCount.textContent=collections.length;balance.textContent=money(tc-te);
@@ -115,6 +137,7 @@ recentExpense.innerHTML=expenses.slice(0,8).map(x=>`<tr><td>${x.what}</td><td>${
 allCollection.innerHTML=collections.map(x=>`<tr><td>${x.name}</td><td>${x.flat}</td><td>${money(x.amount)}</td><td>${x.mode}</td></tr>`).join('')||'<tr><td colspan="4">No records yet</td></tr>';
 allExpense.innerHTML=expenses.map(x=>`<tr><td>${x.what}</td><td>${x.qty} ${x.unit}</td><td>${money(x.amount)}</td><td>${x.worker}</td></tr>`).join('')||'<tr><td colspan="4">No records yet</td></tr>';
 }
-render();
+ 
+loadDataFromSheet();
 </script>
 </body></html>
